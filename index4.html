@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metaverse Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Previous head content remains the same -->
+    <style>
+        /* Previous styles remain the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a0820;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+        * Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(26, 8, 32, 0.8);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff3366;
+            text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+        }
+
+        /* Navigation */
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a:hover {
+            background: rgba(255, 51, 102, 0.2);
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.3);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #ff3366;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        nav a:hover::after {
+            width: 80%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+            background: rgba(26, 8, 32, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+            transform: translateY(0);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff3366, #9933ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Buttons */
+        .cta-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, #ff3366, #9933ff);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 51, 102, 0.5);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        /* Enhanced Avatar Section Styles */
+        .avatar-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem;
+            background: rgba(26, 8, 32, 0.4);
+        }
+
+        .avatar-customization {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(26, 8, 32, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .avatar-preview {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255, 51, 102, 0.1);
+            border: 2px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .avatar-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .control-group {
+            background: rgba(26, 8, 32, 0.6);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 51, 102, 0.2);
+        }
+
+        .control-group h4 {
+            color: #ff3366;
+            margin-bottom: 1rem;
+        }
+
+        .avatar-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .avatar-option {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-option:hover {
+            background: rgba(255, 51, 102, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .avatar-option.active {
+            background: #ff3366;
+            color: white;
+        }
+
+        /* Voice Command Styles */
+        .voice-control {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #9933ff, #ff3366);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .voice-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(153, 51, 255, 0.5);
+        }
+
+        /* Quick Navigation Menu */
+        .quick-nav {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .quick-nav-item {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 51, 102, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-nav-item:hover,
+        .quick-nav-item.active {
+            background: #ff3366;
+            transform: scale(1.2);
+        }
+
+        /* World Card Enhancements */
+        .world-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 51, 102, 0.2),
+                transparent
+            );
+            transition: all 0.5s ease;
+            transform: rotate(45deg);
+        }
+
+        .world-card:hover::before {
+            top: -50%;
+            left: -50%;
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #ff3366, #9933ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(26, 8, 32, 0.8);
+            padding: 2rem;
+            margin-top: 4rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            color: #fff;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: #ff3366;
+            transform: translateY(-3px);
+        }
+
+        .spline-wrapper {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+        }
+          iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+          .logo-cover {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 140px;  /* Adjust based on logo size */
+            height: 40px;  /* Adjust based on logo size */
+            background-color: #000;  /* Match your background color */
+            z-index: 9999;
+            pointer-events: none;
+        }
+          .corner-cover {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 200px;
+            height: 60px;
+            background-color: #000;
+            z-index: 9998;
+        }
+    </style>
+</head>
+<body>
+    <!-- Previous content remains the same until avatar section -->
+    <div class="spline-wrapper">
+        <iframe src="https://my.spline.design/particlenebula-e19c6083f1626d2565a5d11d5143720f/" frameborder="0"></iframe>
+        <div class="logo-cover"></div>
+        <div class="corner-cover"></div>
+    </div>
+    
+    <canvas id="background-canvas"></canvas>
+    
+    <header>
+        <div class="logo">MetaverseHub</div>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#worlds">Worlds</a></li>
+                <li><a href="#avatar">Avatar</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <h1>Welcome to the Metaverse</h1>
+                <p>Explore infinite possibilities in our virtual worlds. Create, connect, and experience the future of digital interaction.</p>
+                <button class="cta-button">Start Your Journey</button>
+            </div>
+        </section>
+        <section class="avatar-section" id="avatar">
+            <div class="avatar-customization">
+                <div class="avatar-preview">
+                    <canvas id="avatar-canvas"></canvas>
+                </div>
+                <div class="avatar-controls">
+                    <div class="control-group">
+                        <h4>Basic Appearance</h4>
+                        <div class="avatar-options">
+                            <button class="avatar-option active">Human</button>
+                            <button class="avatar-option">Robot</button>
+                            <button class="avatar-option">Alien</button>
+                            <button class="avatar-option">Fantasy</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <h4>Hairstyle</h4>
+                        <div class="avatar-options">
+                            <button class="avatar-option">Short</button>
+                            <button class="avatar-option">Long</button>
+                            <button class="avatar-option">Curly</button>
+                            <button class="avatar-option">Spiky</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <h4>Outfit</h4>
+                        <div class="avatar-options">
+                            <button class="avatar-option">Casual</button>
+                            <button class="avatar-option">Business</button>
+                            <button class="avatar-option">Sport</button>
+                            <button class="avatar-option">Cyberpunk</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <h4>Accessories</h4>
+                        <div class="avatar-options">
+                            <button class="avatar-option">Glasses</button>
+                            <button class="avatar-option">Hat</button>
+                            <button class="avatar-option">Jewelry</button>
+                            <button class="avatar-option">Wings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="ai-assistant" title="AI Assistant">AI</div>
+
+    <!-- Add Quick Navigation -->
+    <div class="quick-nav">
+        <div class="quick-nav-item active" data-section="home"></div>
+        <div class="quick-nav-item" data-section="avatar"></div>
+        <div class="quick-nav-item" data-section="worlds"></div>
+    </div>
+
+    <!-- Add Voice Control -->
+    <div class="voice-control" title="Voice Commands">
+        <i class="mic-icon">🎤</i>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 MetaverseHub. All rights reserved.</p>
+            <div class="social-icons">
+                <a href="#" title="Twitter">T</a>
+                <a href="#" title="Discord">D</a>
+                <a href="#" title="Instagram">I</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Previous content remains the same -->
+
+    <script>
+        // Previous scripts remain the same
+
+        // Avatar Customization
+        const avatarCanvas = document.getElementById('avatar-canvas');
+        const ctx = avatarCanvas.getContext('2d');
+        
+        function initializeAvatarCanvas() {
+            avatarCanvas.width = 300;
+            avatarCanvas.height = 300;
+            drawDefaultAvatar();
+        }
+
+        function drawDefaultAvatar() {
+            // Basic avatar drawing logic
+            ctx.fillStyle = '#ff3366';
+            ctx.beginPath();
+            ctx.arc(150, 100, 50, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Body
+            ctx.fillRect(125, 160, 50, 100);
+        }
+
+        // Initialize avatar
+        initializeAvatarCanvas();
+
+        // Avatar Options Interaction
+        document.querySelectorAll('.avatar-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from siblings
+                this.parentElement.querySelectorAll('.avatar-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                // Add active class to clicked option
+                this.classList.add('active');
+                // Update avatar (placeholder for actual avatar update logic)
+                updateAvatar(this.textContent);
+            });
+        });
+
+        function updateAvatar(option) {
+            // Placeholder for avatar update logic
+            console.log('Updating avatar with option:', option);
+        }
+
+        // Quick Navigation
+        document.querySelectorAll('.quick-nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.dataset.section;
+                document.getElementById(section).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Voice Control
+        const voiceControl = document.querySelector('.voice-control');
+        voiceControl.addEventListener('click', function() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                recognition.onresult = function(event) {
+                    const command = event.results[0][0].transcript.toLowerCase();
+                    handleVoiceCommand(command);
+                };
+
+                recognition.start();
+            } else {
+                alert('Voice control is not supported in your browser.');
+            }
+        });
+
+        function handleVoiceCommand(command) {
+            // Handle various voice commands
+            if (command.includes('home')) {
+                document.getElementById('home').scrollIntoView({ behavior: 'smooth' });
+            } else if (command.includes('avatar')) {
+                document.getElementById('avatar').scrollIntoView({ behavior: 'smooth' });
+            } else if (command.includes('worlds')) {
+                document.getElementById('worlds').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Scroll Spy for Quick Nav
+        window.addEventListener('scroll', function() {
+            const sections = ['home', 'avatar', 'worlds'];
+            const scrollPosition = window.scrollY;
+
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                const rect = element.getBoundingClientRect();
+                
+                if (rect.top <= 100 && rect.bottom >= 100) {
+                    document.querySelectorAll('.quick-nav-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.dataset.section === section) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
